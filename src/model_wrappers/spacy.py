@@ -7,6 +7,11 @@ class SpacyWrapper(AbstractModelWrapper):
     def __init__(self, *args, **kwargs) -> None:
         self.nlp = spacy.load(*args, **kwargs)
 
+    @property
+    def name(self) -> str:
+        meta = self.nlp.meta
+        return f'spacy_{meta["lang"]}_{meta["name"]}'
+
     def predict(self, text: str) -> list[Span]:
         doc = self.nlp(text)
         spans: list[Span] = []

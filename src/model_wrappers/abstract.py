@@ -6,6 +6,11 @@ from src.data_models.ner import Span
 
 class AbstractModelWrapper(abc.ABC):
 
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        ...
+
     @abc.abstractmethod
     def predict(self, text: str) -> list[Span]:
         ...
