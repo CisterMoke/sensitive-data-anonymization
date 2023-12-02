@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import spacy
 from loguru import logger
-from sklearn.metrics import f1_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 from src.data_models.ner import Span
-from src.model_wrappers import SpacyWrapper
+from src.model_wrappers import RegexWrapper, SpacyWrapper
 
 
 def get_spans(data: pd.DataFrame) -> list[list[Span]]:
@@ -93,7 +93,8 @@ def spans_to_labels(spans: list[Span], text: str) -> list[str]:
 
 if __name__ == '__main__':
     logger.info('Loading bench data...')
-    bench_path = pth.join(pth.dirname(__file__), 'data', 'benchmark.csv')
+    data_folder = pth.join(pth.dirname(__file__), 'data') 
+    bench_path = pth.join(data_folder, 'benchmark.csv')
     bench_data = pd.read_csv(bench_path, header=0, sep=';')
     bench_spans = get_spans(bench_data)
     bench_labels = [
@@ -101,9 +102,13 @@ if __name__ == '__main__':
         for spans, text in zip(bench_spans, bench_data['text'])
         ]
 
-    models = [
+    reg_wrap = RegexWrapper.from_file(pth.join(data_folder, 'patterns.jsonl'))
+    models: list[SpacyWrapper] = [
         SpacyWrapper('en_core_web_sm'),
-        SpacyWrapper('en_core_web_lg')
+        SpacyWrapper('en_core_web_lg'),
+        SpacyWrapper(
+            'en_core_web_lg', _name='en_lg_regex'
+            ).set_regex(reg_wrap).map_label('GPE', 'LOCATION').map_label('DATE', 'DATE_TIME'),   
     ]
 
     logger.info('Calculating model scores...')
@@ -114,10 +119,29 @@ if __name__ == '__main__':
             spans_to_labels(spans, text)
             for spans, text in zip(mdl_spans, bench_data['text'])
         ]
-        scores = [
-            f1_score(x, y, average='micro')
-            for x, y in zip(bench_labels, mdl_labels)
-        ]
-        model_scores[model.name] = np.mean(scores)
+        scores = {
+            'accuracy': [],
+            'precision': [],
+            'recall': [],
+            'f1_score': []
+        }
+        for x, y in zip(bench_labels, mdl_labels):
+            pos_labels = list(set(x).difference({'O'}))
+            
+            scores['accuracy'].append(accuracy_score(x, y))
+            scores['precision'].append(precision_score(
+                x, y, average='micro', labels=pos_labels,
+                zero_division=0.0
+                ))
+            scores['recall'].append(recall_score(
+                x, y, average='micro', labels=pos_labels,
+                zero_division=0.0
+                ))
+            scores['f1_score'].append(f1_score(
+                x, y, average='micro', labels=pos_labels,
+                zero_division=0.0
+                ))
+        
+        model_scores[model.name] = {k: np.mean(v) for k, v in scores.items()}
 
-    print(pd.DataFrame(model_scores, index=['f1_score']))
+    print(pd.DataFrame(model_scores))

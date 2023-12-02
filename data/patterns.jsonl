@@ -1,0 +1,4 @@
+{"label":"PHONE_NUMBER","pattern":[{"LOWER":{"REGEX":"(?:\\+\\d ?)?(?:\\([0-9]{3}\\) ?|[0-9]{3}-)[0-9]{3}-[0-9]{4}"}}],"id":"us_phone_regex"}
+{"label":"DATE_TIME","pattern":[{"LOWER":{"REGEX":"^((?:19|20)\\d{2})$"},"IS_DIGIT":true}],"id":"year_regex"}
+{"label":"URL","pattern":[{"LOWER":{"REGEX":"(?:https:\/\/|http:\/\/|www\\d?\\.)?(?:[a-zA-Z0-9\\-]{3,}\\.)+[a-zA-Z0-9]{2,}"}}],"id":"url_regex"}
+{"label":"EMAIL_ADDRESS","pattern":[{"LOWER":{"REGEX":"^[\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,}$"}}],"id":"email_regex"}

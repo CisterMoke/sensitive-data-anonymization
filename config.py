@@ -20,6 +20,8 @@ class NLPType(str, Enum):
 class ModelConfig(BaseSettings):
     nlp_type: NLPType = Field(default=NLPType.SPACY)
     nlp_name: str = Field(default='en_core_web_sm')
+    pattens: str = Field(default='data/patterns.jsonl', alias='nlp_patterns')
+    nlp_label_map: str|None = Field(default='GPE=LOCATION,DATE=DATE_TIME')
 
     model_config = SettingsConfigDict(
         use_enum_values=True, env_prefix='nlp_'
