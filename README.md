@@ -20,3 +20,7 @@ python <path_to_project>/main.py
 ```
 
 By default, the REST API is exposed on `http://0.0.0.0:8888`. The host and port can respectively configured by setting the `APP_HOST` and `APP_PORT` environment variables.
+
+Two POST endpoints are exposed:
+ - `/predict`: Accepts a `{"text": string}` object and returns a list of detected named entities.
+ - `/anonymize`: Accepts a `{"text": string}` object and returns the given text with the sensitive data anonymized.
