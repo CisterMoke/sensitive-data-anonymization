@@ -10,13 +10,13 @@ app = FastAPI()
 
 
 @app.post("/predict")
-async def calculate_production_plan(text: Text) -> list[Span]:
+async def predict(text: Text) -> list[Span]:
     model_config = ModelConfig()
     anonimyzer = Anonymizer(model_config)
     return anonimyzer.wrapper.predict(text.text)
 
 @app.post("/anonymize")
-async def calculate_production_plan(text: Text) -> str:
+async def anonymize(text: Text) -> str:
     model_config = ModelConfig()
     anonimyzer = Anonymizer(model_config)
     return anonimyzer.anonymize(text.text)
